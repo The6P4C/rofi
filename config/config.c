@@ -117,6 +117,8 @@ Settings config = {
     .drun_display_format       = "{name} [<span weight='light' size='small'><i>({generic})</i></span>]",
     /** Desktop Link launch command */
     .drun_url_launcher         = "xdg-open",
+    /** Custom path to search for desktop files */
+    .drun_custom_desktop       = NULL,
 
     /** Directory the file browser starts in */
     .file_browser_directory = NULL,

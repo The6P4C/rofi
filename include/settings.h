@@ -115,6 +115,8 @@ typedef struct
     char           * drun_display_format;
     /** Desktop Link launch command */
     char           * drun_url_launcher;
+    /** Custom path to search for desktop files */
+    char           * drun_custom_desktop;
 
     /** Directory the file browser starts in */
     char           * file_browser_directory;

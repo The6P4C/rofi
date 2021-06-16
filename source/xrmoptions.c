@@ -131,6 +131,8 @@ static XrmOption xrmOptions[] = {
       "DRUN format string. (Supports: generic,name,comment,exec,categories)", CONFIG_DEFAULT },
     { xrm_String,  "drun-url-launcher",         { .str   = &config.drun_url_launcher                    }, NULL,
       "Command to open a Desktop Entry that is a Link.", CONFIG_DEFAULT },
+    { xrm_String,  "drun-custom-desktop",         { .str   = &config.drun_custom_desktop                }, NULL,
+      "Custom path to search for desktop files.", CONFIG_DEFAULT },
 
     { xrm_String,  "file-browser-directory",    { .str   = &config.file_browser_directory               }, NULL,
       "Directory the file browser starts in", CONFIG_DEFAULT },
