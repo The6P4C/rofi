@@ -2,7 +2,7 @@
  * rofi
  *
  * MIT/X11 License
- * Copyright © 2013-2021 Qball Cow <qball@gmpclient.org>
+ * Copyright © 2013-2022 Qball Cow <qball@gmpclient.org>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -25,7 +25,7 @@
  *
  */
 
-#include <config.h>
+#include "config.h"
 #include <string.h>
 #include "rofi.h"
 #include "nkutils-bindings.h"
@@ -142,10 +142,27 @@ void setup_abe ( void )
     }
 }
 
-static gboolean binding_trigger_action ( guint64 scope, G_GNUC_UNUSED gpointer target, gpointer user_data )
+static gboolean binding_check_action ( guint64 scope, G_GNUC_UNUSED gpointer target, gpointer user_data )
 {
-    return rofi_view_trigger_action ( rofi_view_get_active (), scope, GPOINTER_TO_UINT ( user_data ) );
+    return rofi_view_check_action ( rofi_view_get_active (), scope, GPOINTER_TO_UINT ( user_data ) ) ? NK_BINDINGS_BINDING_TRIGGERED : NK_BINDINGS_BINDING_NOT_TRIGGERED;
 }
+
+static void binding_trigger_action ( guint64 scope, G_GNUC_UNUSED gpointer target, gpointer user_data )
+{
+    rofi_view_trigger_action ( rofi_view_get_active (), scope, GPOINTER_TO_UINT ( user_data ) );
+}
+
+guint key_binding_get_action_from_name ( const char *name )
+{
+  for ( gsize i = 0; i < G_N_ELEMENTS ( rofi_bindings ); ++i ) {
+    ActionBindingEntry *b = &rofi_bindings[i];
+    if ( g_strcmp0(b->name, name) == 0 ) {
+      return b->id;
+    }
+  }
+  return UINT32_MAX;
+}
+
 
 gboolean parse_keys_abe ( NkBindings *bindings )
 {
@@ -159,7 +176,7 @@ gboolean parse_keys_abe ( NkBindings *bindings )
         // Iter over bindings.
         const char *const sep = ",";
         for ( char *entry = strtok_r ( keystr, sep, &sp ); entry != NULL; entry = strtok_r ( NULL, sep, &sp ) ) {
-            if ( !nk_bindings_add_binding ( bindings, b->scope, entry, binding_trigger_action, GUINT_TO_POINTER ( b->id ), NULL, &error ) ) {
+            if ( !nk_bindings_add_binding ( bindings, b->scope, entry, binding_check_action, binding_trigger_action, GUINT_TO_POINTER ( b->id ), NULL, &error ) ) {
                 char *str = g_markup_printf_escaped ( "Failed to set binding <i>%s</i> for: <i>%s (%s)</i>:\n\t<span size=\"smaller\" style=\"italic\">%s</span>\n",
                                                       b->binding, b->comment, b->name, error->message );
                 g_string_append ( error_msg, str );
@@ -179,7 +196,7 @@ gboolean parse_keys_abe ( NkBindings *bindings )
 
     for ( gsize i = SCOPE_MIN_FIXED; i <= SCOPE_MAX_FIXED; ++i ) {
         for ( gsize j = 1; j < G_N_ELEMENTS ( mouse_default_bindings ); ++j ) {
-            nk_bindings_add_binding ( bindings, i, mouse_default_bindings[j], binding_trigger_action, GSIZE_TO_POINTER ( j ), NULL, NULL );
+            nk_bindings_add_binding ( bindings, i, mouse_default_bindings[j], binding_check_action, binding_trigger_action, GSIZE_TO_POINTER ( j ), NULL, NULL );
         }
     }
 

@@ -1,7 +1,46 @@
+.nh
 .TH ROFI\-THEME 5 rofi\-theme
 .SH NAME
 .PP
 \fBrofi\-theme\fP \- Rofi theme format files
+
+.SH DEFAULT THEME LOADING
+.PP
+By default, rofi loads the default theme. This theme is \fBalways\fP loaded.
+In the default (always loaded) configuration it does:
+
+.PP
+.RS
+
+.nf
+@theme "default"
+
+.fi
+.RE
+
+.PP
+To unload the default theme, and load another theme, add \fB\fC@theme\fR to your
+\fB\fCconfig.rasi\fR file.
+
+.PP
+If you have a theme loaded by \fB\fC@theme\fR or use the default theme, you can tweak
+it by adding overriding elements at the end of your \fB\fCconfig.rasi\fR file.
+
+.PP
+For the difference between \fB\fC@import\fR and \fB\fC@theme\fR see the \fB\fCMultiple file
+handling\fR section in this manpage.
+
+.PP
+To see the default theme, run the following command:
+
+.PP
+.RS
+
+.nf
+rofi \-no\-config \-dump\-theme
+
+.fi
+.RE
 
 .SH DESCRIPTION
 .PP
@@ -95,7 +134,7 @@ abbreviation for \fBr\fPofi \fBa\fPdvanced \fBs\fPtyle \fBi\fPnformation.
 .SH Basic Structure
 .PP
 Each element has a section with defined properties. Global properties can be defined in section \fB\fC* { }\fR\&.
-Sub\-section names begin with a hash symbol \fB\fC#\fR\&.
+Sub\-\&section names begin with a hash symbol \fB\fC#\fR\&.
 
 .PP
 It is advised to define the \fIglobal properties section\fP on top of the file to
@@ -281,6 +320,8 @@ a cursor
 .IP \(bu 2
 a list of keywords
 .IP \(bu 2
+an array of values
+.IP \(bu 2
 an environment variable
 .IP \(bu 2
 Inherit
@@ -452,11 +493,7 @@ The different values are:
 .IP \(bu 2
 \fB\fC{PERCENTAGE}\fR can be between 0\-1.0, or 0%\-100%
 .IP \(bu 2
-
-.PP
-\fB\fC{named\-color}\fR is one of the following colors:
-.PP
-AliceBlue, AntiqueWhite, Aqua, Aquamarine, Azure, Beige, Bisque, Black, BlanchedAlmond, Blue, BlueViolet, Brown,
+\fB\fC{named\-color}\fR is one of the following colors:AliceBlue, AntiqueWhite, Aqua, Aquamarine, Azure, Beige, Bisque, Black, BlanchedAlmond, Blue, BlueViolet, Brown,
 BurlyWood, CadetBlue, Chartreuse, Chocolate, Coral, CornflowerBlue, Cornsilk, Crimson, Cyan, DarkBlue, DarkCyan,
 DarkGoldenRod, DarkGray, DarkGrey, DarkGreen, DarkKhaki, DarkMagenta, DarkOliveGreen, DarkOrange, DarkOrchid, DarkRed,
 DarkSalmon, DarkSeaGreen, DarkSlateBlue, DarkSlateGray, DarkSlateGrey, DarkTurquoise, DarkViolet, DeepPink, DeepSkyBlue,
@@ -617,6 +654,12 @@ It supports the following operations:
 \fB\fCmin\fR : Minimum of l or rvalue;
 .IP \(bu 2
 \fB\fCmax\fR : Maximum of l or rvalue;
+.IP \(bu 2
+\fB\fCfloor\fR : Round down lvalue to the next multiple of rvalue
+.IP \(bu 2
+\fB\fCceil\fR : Round up lvalue to the next multiple of rvalue
+.IP \(bu 2
+\fB\fCround\fR : Round lvalue to the next multiple of rvalue
 
 .RE
 
@@ -688,6 +731,7 @@ style property.
 
 .PP
 When no unit is specified, pixels are assumed.
+
 .RE
 
 .SH Position
@@ -696,22 +740,14 @@ Indicate a place on the window/monitor.
 
 .RS
 .IP \(bu 2
-
-.PP
 Format: \fB\fC(center|east|north|west|south|north east|north west|south west|south east)\fR
-.PP
-.RS
-
-.nf
-
+\fB\fC
 north west   |    north    |  north east
 \-\-\-\-\-\-\-\-\-\-\-\-\-|\-\-\-\-\-\-\-\-\-\-\-\-\-|\-\-\-\-\-\-\-\-\-\-\-\-
   west   |   center    |  east
 \-\-\-\-\-\-\-\-\-\-\-\-\-|\-\-\-\-\-\-\-\-\-\-\-\-\-|\-\-\-\-\-\-\-\-\-\-\-\-
 south west   |    south    |  south east
-
-.fi
-.RE
+\fR
 
 .RE
 
@@ -763,6 +799,34 @@ window {
 .fi
 .RE
 
+.RS
+.IP \(bu 2
+Format: \fB\fCvar(PROPERTY NAME, DEFAULT)\fR
+
+.RE
+
+.PP
+A reference can point to another reference. Currently, the maximum number of redirects is 20.
+A property always refers to another property. It cannot be used for a subpart of the property.
+
+.PP
+Example:
+
+.PP
+.RS
+
+.nf
+window {
+    width: var( width, 30%);
+}
+
+.fi
+.RE
+
+.PP
+If the property \fB\fCwidth\fR is set globally (\fB\fC*{}\fR) that value is used, if the property
+\fB\fCwidth\fR is not set, the default value is used.
+
 .SH Orientation
 .RS
 .IP \(bu 2
@@ -794,6 +858,16 @@ Format: \fB\fC[ keyword, keyword ]\fR
 A list starts with a '[' and ends with a ']'. The entries in the list are comma\-separated.
 The \fB\fCkeyword\fR in the list refers to an widget name.
 
+.SH List of values
+.RS
+.IP \(bu 2
+Format: \fB\fC[ value, value, ... ]\fR
+
+.RE
+
+.PP
+An list starts with a '[' and ends with a ']'. The entries in the list are comma\-separated.
+
 .SH Environment variable
 .RS
 .IP \(bu 2
@@ -815,6 +889,31 @@ The environment variable should be an alphanumeric string without white\-space.
 
 .fi
 .RE
+
+.RS
+.IP \(bu 2
+Format: \fB\fCenv(ENVIRONMENT, default)\fR
+
+.RE
+
+.PP
+This will parse the environment variable as the property value. (that then can be any of the above types).
+The environment variable should be an alphanumeric string without white\-space.
+If the environment value is not found, the default value is used.
+
+.PP
+.RS
+
+.nf
+window {
+    width: env(WIDTH, 40%);
+}
+
+.fi
+.RE
+
+.PP
+If environment WIDTH is set, then that value is parsed, otherwise the default value (\fB\fC40%\fR).
 
 .SH Inherit
 .RS
@@ -883,7 +982,6 @@ The current widgets available in \fBrofi\fP:
 .RS
 .IP \(bu 2
 \fB\fCwindow\fR
-
 .RS
 .IP \(bu 2
 \fB\fCoverlay\fR: the overlay widget.
@@ -891,7 +989,6 @@ The current widgets available in \fBrofi\fP:
 \fB\fCmainbox\fR: The mainbox box.
 .IP \(bu 2
 \fB\fCinputbar\fR: The input bar box.
-
 .RS
 .IP \(bu 2
 \fB\fCbox\fR: the horizontal @box packing the widgets
@@ -907,15 +1004,14 @@ The current widgets available in \fBrofi\fP:
 \fB\fCnum\-filtered\-rows\fR: Shows the total number of rows after filtering.
 
 .RE
+
 .IP \(bu 2
 \fB\fClistview\fR: The listview.
-
 .RS
 .IP \(bu 2
 \fB\fCscrollbar\fR: the listview scrollbar
 .IP \(bu 2
 \fB\fCelement\fR: a box in the listview holding the entries
-
 .RS
 .IP \(bu 2
 \fB\fCelement\-icon\fR: the widget in the listview's entry showing the (optional) icon
@@ -926,25 +1022,28 @@ The current widgets available in \fBrofi\fP:
 
 .RE
 
+
 .RE
+
 .IP \(bu 2
 \fB\fCmode\-switcher\fR: the main horizontal @box packing the buttons.
-
 .RS
 .IP \(bu 2
 \fB\fCbutton\fR: the buttons @textbox for each mode
 
 .RE
+
 .IP \(bu 2
 \fB\fCmessage\fR: The container holding the textbox.
-
 .RS
 .IP \(bu 2
 \fB\fCtextbox\fR: the message textbox
 
 .RE
 
+
 .RE
+
 
 .RE
 
@@ -1053,13 +1152,9 @@ Type of mouse cursor that is set when the mouse pointer is hovered over the widg
 .SS window:
 .RS
 .IP \(bu 2
-
-.PP
 \fBfont\fP:            string
 The font used in the window
 .IP \(bu 2
-
-.PP
 \fBtransparency\fP:    string
 Indicating if transparency should be used and what type:
 \fBreal\fP \- True transparency. Only works with a compositor.
@@ -1067,32 +1162,20 @@ Indicating if transparency should be used and what type:
 \fBscreenshot\fP \- Take a screenshot of the screen and use that.
 \fBPath\fP to png file \- Use an image.
 .IP \(bu 2
-
-.PP
 \fBlocation\fP:       position
 The place of the anchor on the monitor
 .IP \(bu 2
-
-.PP
 \fBanchor\fP:         anchor
 The anchor position on the window
 .IP \(bu 2
-
-.PP
 \fBfullscreen\fP:     boolean
 Window is fullscreen.
 .IP \(bu 2
-
-.PP
 \fBwidth\fP:          distance
 The width of the window
 .IP \(bu 2
-
-.PP
 \fBx\-offset\fP:  distance
 .IP \(bu 2
-
-.PP
 \fBy\-offset\fP:  distance
 The offset of the window to the anchor point, allowing you to push the window left/right/up/down
 
@@ -1133,14 +1216,15 @@ The offset of the window to the anchor point, allowing you to push the window le
 .IP \(bu 2
 \fBstr\fP:               the string to display by this textbox (string).
 .IP \(bu 2
-\fBvertical\-align\fP:    vertical alignment of the text (\fB\fC0\fR top, \fB\fC1\fR bottom).
+\fBvertical\-align\fP:    Vertical alignment of the text. A number between 0 (top) and 1 (bottom).
 .IP \(bu 2
-\fBhorizontal\-align\fP:  horizontal alignment of the text (\fB\fC0\fR left, \fB\fC1\fR right).
+\fBhorizontal\-align\fP:  Horizontal alignment of the text. A number between 0 (left) and 1 (right).
 .IP \(bu 2
 \fBtext\-color\fP:        the text color to use.
 .IP \(bu 2
 \fBhighlight\fP:         text style {color}.
 color is optional, multiple highlight styles can be added like: bold underline italic #000000;
+This option is only available on the \fB\fCelement\-text\fR widget.
 .IP \(bu 2
 \fBwidth\fP:             override the desired width for the textbox.
 .IP \(bu 2
@@ -1153,6 +1237,11 @@ color is optional, multiple highlight styles can be added like: bold underline i
 \fBblink\fP:             Enable/Disable blinking on an input textbox (Boolean).
 .IP \(bu 2
 \fBmarkup\fP:            Force markup on, beware that only valid pango markup strings are shown.
+.IP \(bu 2
+\fBtab\-stops\fP:         array of distances
+Set the location of tab stops by their distance from the beginning of the line.
+Each distance should be greater than the previous one.
+The text appears to the right of the tab stop position (other alignments are not supported yet).
 
 .RE
 
@@ -1257,9 +1346,9 @@ The current layout of \fBrofi\fP is structured as follows:
 | | mainbox  {BOX:vertical}                                                       |  |
 | | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |  |
 | | | inputbar {BOX:horizontal}                                                 | |  |
-| | | |\-\-\-\-\-\-\-\-\-| |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |\-\-\-| | |  |
-| | | | prompt  | | entry                                               | |ci | | |  |
-| | | |\-\-\-\-\-\-\-\-\-| |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |\-\-\-| | |  |
+| | | |\-\-\-\-\-\-\-\-\-| |\-| |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|\-\-\-| |\-\-\-| |\-\-\-| |\-\-\-| | |  |
+| | | | prompt  | |:| | entry                           |#fr| | / | |#ns| |ci | | |  |
+| | | |\-\-\-\-\-\-\-\-\-| |\_| |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|\-\-\-| |\-\-\-| |\-\-\-| |\-\-\-| | |  |
 | | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |  |
 | |                                                                               |  |
 | | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |  |
@@ -1271,6 +1360,12 @@ The current layout of \fBrofi\fP is structured as follows:
 | |                                                                               |  |
 | | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|  |
 | | | listview                                                                    |  |
+| | | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-]  |  |
+| | | | element                                                                |  |  |
+| | | | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-] |  |  |
+| | | | |element\-icon     | |element\-text                                    | |  |  |
+| | | | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |  |  |
+| | | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-]  |  |
 | | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|  |
 | |                                                                               |  |
 | | |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-| |  |
@@ -1290,8 +1385,16 @@ The current layout of \fBrofi\fP is structured as follows:
 .PP
 .RS
 
-.PP
+.RS
+.IP \(bu 2
 ci is the case\-indicator
+.IP \(bu 2
+fr is the num\-filtered\-rows
+.IP \(bu 2
+ns is the num\-rows
+
+.RE
+
 .RE
 
 .SS Error message structure
@@ -1363,24 +1466,73 @@ Any widget name starting with \fB\fCtextbox\fR is a textbox widget, others are b
 .PP
 There are several special widgets that can be used by prefixing the name of the widget:
 
-.RS
-.IP \(bu 2
-\fB\fCtextbox\fR:
-This is a textbox widget. The displayed string can be set with \fB\fCstr\fR\&.
-.IP \(bu 2
-\fB\fCicon\fR:
-This is an icon widget. The displayed icon can be set with \fB\fCfilename\fR and size with \fB\fCsize\fR\&.
-.IP \(bu 2
-\fB\fCbutton\fR:
-This is a textbox widget that can have a 'clickable' action.
-The \fB\fCaction\fR can be set to:
-\fB\fCok\fR accept entry.
-\fB\fCcustom\fR accept custom input.
-\fB\fCok|alternate\fR: accept entry and launch alternate action (for run launch in terminal).
-\fB\fCcustom|alternate\fR: accept custom input and launch alternate action.
+.SS textbox
+.PP
+This is a read\-only textbox widget. The displayed string can be set with \fB\fCcontent\fR\&.
 
+.PP
+Example:
+
+.PP
+.RS
+
+.nf
+textbox\-custom {
+  expand: false;
+  content: "My Message";
+}
+
+.fi
 .RE
 
+.SS Icon
+.PP
+This is an icon widget. The displayed icon can be set with \fB\fCfilename\fR and size with \fB\fCsize\fR\&.
+If the property \fB\fCaction\fR is set, it acts as a button.
+\fB\fCaction\fR can be set to a keybinding name and completes that action. (see rofi \-show keys for a list).
+
+.PP
+If the \fB\fCsquared\fR property is set to \fBfalse\fP the widget height and width are not forced to be equal.
+
+.PP
+Example:
+
+.PP
+.RS
+
+.nf
+icon\-paste {
+    expand: false;
+    filename: "gtk\-paste";
+    size: 24;
+    vertical\-align: 0.5;
+    action: "kb\-primary\-paste";
+}
+
+.fi
+.RE
+
+.SS button
+.PP
+This is a textbox widget that can have a 'clickable' action.
+The \fB\fCaction\fR can be set to:
+\fB\fCkeybinding\fR: accepts a keybinding name and completes that action. (see rofi \-show keys for a list).
+
+.PP
+.RS
+
+.nf
+button\-paste {
+    expand: false;
+    content: "My Clickable Message";
+    vertical\-align: 0.5;
+    action: "kb\-primary\-paste";
+}
+
+.fi
+.RE
+
+.SS Children
 .PP
 To specify children, set the \fB\fCchildren\fR
 property (this always happens on the \fB\fCbox\fR child, see example below):
@@ -1389,7 +1541,9 @@ property (this always happens on the \fB\fCbox\fR child, see example below):
 .RS
 
 .nf
-children: [prompt,entry,overlay,case\-indicator];
+inputbar {
+  children: [prompt,entry,overlay,case\-indicator];
+}
 
 .fi
 .RE
@@ -1524,15 +1678,15 @@ More dynamic spacing can be achieved by adding dummy widgets, for example to mak
 .RS
 
 .nf
-|\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|
-|  |\-\-\-\-\-\-\-\-\-\-\-|  |\-\-\-\-\-\-\-\-|  |\-\-\-\-\-\-\-\-\-\-\-|  |
-|  | dummy     |  | child  |  | dummy     |  |
-|  | expand: y |  |        |  | expand: y |  |
-|  |           |  |        |  |           |  |
-|  |           |  |        |  |           |  |
-|  |           |  |        |  |           |  |
-|  |\-\-\-\-\-\-\-\-\-\-\-|  |\-\-\-\-\-\-\-\-|  |\-\-\-\-\-\-\-\-\-\-\-|  |
-|\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|
+|\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|
+|  |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|  |\-\-\-\-\-\-\-\-|  |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|  |
+|  | dummy         |  | child  |  | dummy         |  |
+|  | expand: true; |  |        |  | expand: true; |  |
+|  |               |  |        |  |               |  |
+|  |               |  |        |  |               |  |
+|  |               |  |        |  |               |  |
+|  |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|  |\-\-\-\-\-\-\-\-|  |\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|  |
+|\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-|
 
 .fi
 .RE
@@ -1577,7 +1731,19 @@ To test minor changes, part of the theme can be passed on the command line, for 
 .RS
 
 .nf
-rofi \-theme\-str '#window { fullscreen:true;}' \-show run
+rofi \-theme\-str 'window { fullscreen:true;}' \-show run
+
+.fi
+.RE
+
+.PP
+Another syntax to modify theme properties is:
+
+.PP
+.RS
+
+.nf
+rofi \-theme+window+fullscreen true \-show run
 
 .fi
 .RE

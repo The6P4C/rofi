@@ -1,4 +1,4 @@
-AC_INIT([rofi], [1.6.1-dev], [https://github.com/davatorium/rofi/],[],[https://reddit.com/r/qtools/])
+AC_INIT([rofi], [1.7.3-dev], [https://github.com/davatorium/rofi/],[],[https://reddit.com/r/qtools/])
 
 AC_CONFIG_SRCDIR([source/rofi.c])
 AC_CONFIG_HEADER([config.h])
@@ -124,6 +124,7 @@ AC_CHECK_FUNC([readdir],,  AC_MSG_ERROR("Could not find readdir in c library"))
 AC_CHECK_HEADER([math.h],, AC_MSG_ERROR("Could not find math.h header file"))
 AC_SEARCH_LIBS([floor],[m],,      AC_MSG_ERROR("Could not find floor in math library"))
 AC_SEARCH_LIBS([ceil], [m],,      AC_MSG_ERROR("Could not find ceil in math library"))
+AC_SEARCH_LIBS([round], [m],,      AC_MSG_ERROR("Could not find round in math library"))
 
 AC_CHECK_HEADER([sysexits.h],, AC_MSG_ERROR("Could not find the sysexists.h header file"))
 AC_CHECK_HEADER([setjmp.h],,   AC_MSG_ERROR("Could not find the setjmp.h header file"))
@@ -146,7 +147,7 @@ AC_DEFINE_UNQUOTED([GLIB_VERSION_MIN_REQUIRED], [(G_ENCODE_VERSION(${glib_min_ma
 AC_DEFINE_UNQUOTED([GLIB_VERSION_MAX_ALLOWED], [(G_ENCODE_VERSION(${glib_min_major},${glib_min_minor}))], [The highest GLib version supported])
 GW_CHECK_XCB([xcb-aux xcb-xkb xkbcommon xkbcommon-x11 xcb-ewmh xcb-icccm xcb-cursor xcb-randr xcb-xinerama])
 PKG_CHECK_MODULES([pango],    [pango pangocairo])
-PKG_CHECK_MODULES([cairo],	  [cairo cairo-xcb])
+PKG_CHECK_MODULES([cairo],    [cairo cairo-xcb])
 PKG_CHECK_MODULES([libsn],    [libstartup-notification-1.0 ])
 PKG_CHECK_MODULES([gdkpixbuf],    [gdk-pixbuf-2.0])
 

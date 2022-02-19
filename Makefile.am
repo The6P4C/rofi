@@ -1,5 +1,5 @@
 # Specify automake version.
-AUTOMAKE_OPTIONS  = 1.11.3
+AUTOMAKE_OPTIONS = 1.11.3
 
 ACLOCAL_AMFLAGS = -I subprojects/libnkutils -I subprojects/libgwater ${ACLOCAL_FLAGS}
 
@@ -18,7 +18,6 @@ include $(top_srcdir)/libgwater-xcb-nolibtool.mk
 ##
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = pkgconfig/rofi.pc
-
 
 BUILT_SOURCES=\
 			  lexer/theme-parser.h\
@@ -178,32 +177,19 @@ dist_man1_MANS=\
 
 dist_man5_MANS=\
 	doc/rofi-theme.5\
+	doc/rofi-keys.5\
+	doc/rofi-dmenu.5\
 	doc/rofi-script.5
 
 EXTRA_DIST += \
 	doc/rofi-theme.5.markdown \
 	doc/rofi-script.5.markdown \
+	doc/rofi-keys.5.markdown \
+	doc/rofi-dmenu.5.markdown \
 	doc/rofi-theme-selector.1.markdown \
 	doc/rofi-sensible-terminal.1.markdown \
-	doc/rofi.1.markdown
-
-
-##
-# Readme.md
-##
-markdown_SC_FILES=\
+	doc/rofi.1.markdown\
 	README.md
-
-# want the html to show up in release.
-md_verbose = $(md_verbose_@AM_V@)
-md_verbose_ = $(md_verbose_@AM_DEFAULT_V@)
-md_verbose_0 = @echo "  MD" $@;
-
-markdown_FILES=\
-	README.html
-
-README.html: README.md
-	$(md_verbose) markdown $< > $@
 
 ###
 # Themes
@@ -238,14 +224,15 @@ theme_DATA=\
 		   themes/sidebar.rasi\
 		   themes/solarized.rasi\
 		   themes/solarized_alternate.rasi\
-		   themes/fancy.rasi
+		   themes/fancy.rasi\
+		   themes/iggy.rasi\
+		   themes/iggy.jpg
 
 ##
 # Extra DIST
 ##
 EXTRA_DIST+=\
 	$(markdown_FILES)\
-	$(markdown_SC_FILES)\
 	Examples/i3_switch_workspaces.sh\
 	Examples/i3_empty_workspace.sh\
 	Examples/test_script_mode.sh\
@@ -255,18 +242,20 @@ EXTRA_DIST+=\
 	doc/rofi.doxy.in\
 	script/get_git_rev.sh\
 	$(theme_DATA)\
+	doc/default_configuration.rasi\
 	doc/default_theme.rasi\
 	Changelog
 ##
 # Indent
 ##
 
-
-update-manpage: $(top_srcdir)/doc/rofi-theme-selector.1.markdown $(top_srcdir)/doc/rofi.1.markdown $(top_srcdir)/doc/rofi-theme.5.markdown $(top_srcdir)/doc/rofi-script.5.markdown ${top_srcdir}/doc/rofi-sensible-terminal.1.markdown
+update-manpage: $(top_srcdir)/doc/rofi-theme-selector.1.markdown $(top_srcdir)/doc/rofi.1.markdown $(top_srcdir)/doc/rofi-theme.5.markdown $(top_srcdir)/doc/rofi-script.5.markdown ${top_srcdir}/doc/rofi-sensible-terminal.1.markdown ${top_srcdir}/doc/rofi-keys.5.markdown ${top_srcdir}/doc/rofi-dmenu.5.markdown
 	go-md2man -in $(top_srcdir)/doc/rofi.1.markdown -out $(top_srcdir)/doc/rofi.1
 	go-md2man -in $(top_srcdir)/doc/rofi-theme-selector.1.markdown -out $(top_srcdir)/doc/rofi-theme-selector.1
 	go-md2man -in $(top_srcdir)/doc/rofi-theme.5.markdown -out $(top_srcdir)/doc/rofi-theme.5
+	go-md2man -in $(top_srcdir)/doc/rofi-keys.5.markdown -out $(top_srcdir)/doc/rofi-keys.5
 	go-md2man -in $(top_srcdir)/doc/rofi-script.5.markdown -out $(top_srcdir)/doc/rofi-script.5
+	go-md2man -in $(top_srcdir)/doc/rofi-dmenu.5.markdown -out $(top_srcdir)/doc/rofi-dmenu.5
 	go-md2man -in $(top_srcdir)/doc/rofi-sensible-terminal.1.markdown -out $(top_srcdir)/doc/rofi-sensible-terminal.1
 
 ##
@@ -287,8 +276,6 @@ if USE_CHECK
 check_PROGRAMS+=mode_test theme_parser_test helper_tokenize
 endif
 
-
-
 history_test_CFLAGS=\
 	$(AM_CFLAGS)\
 	$(glib_CFLAGS)\
@@ -304,7 +291,6 @@ history_test_CFLAGS=\
 history_test_LDADD=\
 	$(glib_LIBS)\
 	$(NKUTILS_LIBS)
-
 
 history_test_SOURCES=\
 	source/history.c\
@@ -331,6 +317,7 @@ textbox_test_CFLAGS=\
 	-I$(top_builddir)/lexer/\
 	-I$(top_srcdir)/lexer/\
 	-I$(top_srcdir)/config/\
+	-I$(top_builddir)/resources/\
 	-I$(top_builddir)/
 
 textbox_test_LDADD=\
@@ -350,6 +337,7 @@ helper_pidfile_SOURCES=\
 					   include/mode-private.h\
 					   source/helper.c\
 					   source/theme.c\
+						 source/css-colors.c\
 					   source/rofi-types.c\
 					   include/rofi-types.h\
 					   include/helper.h\
@@ -371,7 +359,8 @@ widget_test_SOURCES=\
 			config/config.c\
 			lexer/theme-parser.y\
 			lexer/theme-lexer.l\
-			test/widget-test.c
+			test/widget-test.c\
+			resources/resources.c
 
 box_test_LDADD=$(textbox_test_LDADD)
 box_test_CFLAGS=$(textbox_test_CFLAGS)
@@ -386,7 +375,8 @@ box_test_SOURCES=\
 			source/css-colors.c\
 			include/theme.h\
 			include/css-colors.h\
-      config/config.c\
+			config/config.c\
+			resources/resources.c\
 			test/box-test.c
 
 scrollbar_test_LDADD=$(textbox_test_LDADD)
@@ -402,8 +392,9 @@ scrollbar_test_SOURCES=\
 			source/css-colors.c\
 			include/theme.h\
 			include/css-colors.h\
-      config/config.c\
-			test/scrollbar-test.c
+			config/config.c\
+			test/scrollbar-test.c\
+			resources/resources.c
 
 textbox_test_SOURCES=\
 	source/widgets/widget.c\
@@ -427,6 +418,7 @@ textbox_test_SOURCES=\
 	include/xrmoptions.h\
 	include/helper.h\
 	include/helper-theme.h\
+  resources/resources.c\
 	test/textbox-test.c
 
 if USE_CHECK
@@ -451,6 +443,7 @@ theme_parser_test_SOURCES=\
 	source/rofi-types.c\
 	include/rofi-types.h\
 	source/css-colors.c\
+	resources/resources.c\
 	test/theme-parser-test.c
 endif
 
@@ -465,10 +458,10 @@ helper_test_SOURCES=\
 	include/xrmoptions.h\
 	source/xrmoptions.c\
 	source/theme.c\
+	source/css-colors.c\
 	source/rofi-types.c\
 	include/rofi-types.h\
 	test/helper-test.c
-
 
 helper_test_CFLAGS=\
 	$(AM_CFLAGS)\
@@ -485,6 +478,7 @@ helper_test_CFLAGS=\
 	-I$(top_builddir)/lexer/\
 	-I$(top_srcdir)/lexer/\
 	-I$(top_srcdir)/config/\
+	-I$(top_builddir)/resources/\
 	-I$(top_builddir)/
 
 helper_test_LDADD=\
@@ -495,7 +489,6 @@ helper_test_LDADD=\
 	$(libsn_LIBS)\
 	$(cairo_LIBS)
 
-
 helper_expand_SOURCES=\
 	config/config.c\
 	include/rofi.h\
@@ -503,6 +496,7 @@ helper_expand_SOURCES=\
 	include/mode-private.h\
 	source/helper.c\
 	source/theme.c\
+	source/css-colors.c\
 	include/helper.h\
 	include/helper-theme.h\
 	include/xrmoptions.h\
@@ -525,6 +519,7 @@ helper_config_cmdline_parser_SOURCES=\
 	include/mode-private.h\
 	source/helper.c\
 	source/theme.c\
+	source/css-colors.c\
 	source/rofi-types.c\
 	include/rofi-types.h\
 	include/helper.h\
@@ -533,17 +528,17 @@ helper_config_cmdline_parser_SOURCES=\
 	source/xrmoptions.c\
 	test/helper-config-cmdline-parser.c
 
-
 if USE_CHECK
 mode_test_CFLAGS=$(textbox_test_CFLAGS) $(check_CFLAGS)
 mode_test_LDADD=$(textbox_test_LDADD) $(check_LIBS)
 mode_test_SOURCES=\
 				  config/config.c\
 				  test/mode-test.c\
-			      source/dialogs/help-keys.c\
+				  source/dialogs/help-keys.c\
 				  source/helper.c\
 				  source/theme.c\
-				  source/mode.c\
+					source/css-colors.c\
+					source/mode.c\
 				  source/rofi-types.c\
 				  include/rofi-types.h\
 				  source/xrmoptions.c\
@@ -559,6 +554,7 @@ helper_tokenize_SOURCES=\
 					   include/mode-private.h\
 					   source/helper.c\
 					   source/theme.c\
+						 source/css-colors.c\
 					   source/rofi-types.c\
 					   include/rofi-types.h\
 					   include/helper.h\
@@ -566,7 +562,6 @@ helper_tokenize_SOURCES=\
 					   include/xrmoptions.h\
 					   source/xrmoptions.c\
 					   test/helper-tokenize.c
-
 endif
 
 TESTS+=\
@@ -586,24 +581,11 @@ TESTS+=theme_parser_test\
 	mode_test
 endif
 
-.PHONY: test-x
-test-x: $(bin_PROGRAMS)
-	MESON_SOURCE_ROOT="$(top_srcdir)" \
-	MESON_BUILD_ROOT="$(top_builddir)" \
-	$(top_srcdir)/test/run_all_tests.sh
-
-
-.PHONY: indent
-indent: $(SOURCES)
-	uncrustify -c $(top_srcdir)/data/uncrustify.cfg --replace $^
-
 .PHONY: cppcheck
-
 cppcheck: $(rofi_SOURCES)
 	cppcheck --std=c99 --platform=unix64 --enable=all -Uerror_dialog --inconclusive -I $(top_srcdir)/include/  $^
 
 .PHONY: ohcount
-
 ohcount: $(rofi_SOURCES)
 	ohcount -i $(top_srcdir)/source/ $(top_srcdir)/include/
 
@@ -627,7 +609,7 @@ coverage: coverage/index.html
 coverage-cli: coverage.info
 	lcov -l $^
 coverage.info: $(top_builddir)/test/*.gcda $(top_builddir)/source/*.gcda  $(top_builddir)/source/**/*.gcda
-	lcov --capture  --directory $(top_builddir) --output-file coverage.info
+	lcov --capture --directory $(top_builddir) --output-file coverage.info
 	lcov -r $@ /usr/include/\* -o $@
 
 coverage/index.html: coverage.info
@@ -643,8 +625,26 @@ coverage-clean:
 
 EXTRA_DIST += \
 	doc/meson.build \
+	subprojects/libgwater/mpd/meson.build \
+	subprojects/libgwater/nl/meson.build \
+	subprojects/libgwater/wayland/meson.build \
+	subprojects/libgwater/xcb/meson.build \
+	subprojects/libgwater/alsa-mixer/meson.build \
+	subprojects/libgwater/wayland-server/meson.build \
+	subprojects/libgwater/meson.build \
+	subprojects/libgwater/win/meson.build \
 	subprojects/libnkutils/meson.build \
 	subprojects/libnkutils/meson_options.txt \
-	subprojects/libgwater/xcb/meson.build \
+	subprojects/libgwater/wayland/libgwater-wayland.h \
+	subprojects/libgwater/wayland/libgwater-wayland.c \
+	subprojects/libgwater/wayland-server/libgwater-wayland-server.c \
+	subprojects/libgwater/wayland-server/libgwater-wayland-server.h \
+	subprojects/libgwater/mpd/libgwater-mpd.h \
+	subprojects/libgwater/mpd/libgwater-mpd.c \
+	subprojects/libgwater/nl/libgwater-nl.h \
+	subprojects/libgwater/nl/libgwater-nl.c \
+	subprojects/libgwater/alsa-mixer/libgwater-alsa-mixer.h \
+	subprojects/libgwater/alsa-mixer/libgwater-alsa-mixer.c \
+	doc/meson_build_manpages.sh \
 	meson_options.txt \
 	meson.build

@@ -51,7 +51,7 @@ unsigned int test =0;
 #define TASSERTE( a, b )    {                                                            \
         if ( ( a ) == ( b ) ) {                                                          \
             printf ( "Test %u passed (%s == %s) (%u == %u)\n", ++test, # a, # b, a, b ); \
-        }else {                                                                          \
+        } else {                                                                         \
             printf ( "Test %u failed (%s == %s) (%u != %u)\n", ++test, # a, # b, a, b ); \
             abort ( );                                                                   \
         }                                                                                \
@@ -78,7 +78,7 @@ int monitor_active ( G_GNUC_UNUSED workarea *mon )
     return 0;
 }
 
-char * helper_get_theme_path ( const char *file )
+char * helper_get_theme_path ( const char *file, const char *ext )
 {
     return g_strdup ( file );
 }

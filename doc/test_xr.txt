@@ -116,10 +116,12 @@ rofi.scroll-method:                  0
 ! rofi.color-active:
 ! "Color scheme window" Set from: Default
 ! rofi.color-window:
-! "Max history size (WARNING: can cause slowdowns when set to high)." Set from: Default
+! "Max history size (WARNING: can cause slowdowns when set too high)." Set from: Default
 ! rofi.max-history-size:               25
 ! "Hide the prefix mode prefix on the combi view." Set from: Default
 ! rofi.combi-hide-mode-prefix:         false
+! "Combi format string. (Supports: mode, text)" Set from: Default
+! rofi.combi-display-format:           {mode} {text}
 ! "Set the character used to negate the matching. ('\0' to disable)" Set from: Default
 ! rofi.matching-negate-char:           -
 ! "Directory where history and temporary files are stored." Set from: Default
